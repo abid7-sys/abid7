@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Admission preparation tracker with university countdowns, subject goals, focus sessions, history, and backup." />
+  <title>Admission Tracker Version 0.0.1</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="container">
+    <header class="app-header">
+      <div>
+        <p class="eyebrow">A small initiative by <b>Nazmul Abid</b> to increase productivity</p>
+        <h1>Admission Tracker</h1>
+        <p class="hero-copy">A simple, elegant study tracker designed to help you stay focused, eliminate procrastination, and hit your daily goals..</p>
+      </div>
+      <div class="status-chip">Date: <span id="todayDate"></span></div>
+    </header>
+
+    <section class="panel track-panel">
+      <div class="section-header">
+        <div>
+          <h2>Catagory of preparation</h2>
+      
+        </div>
+      </div>
+      <div class="track-tabs" id="trackTabs">
+        <button type="button" class="tab-button active" data-track="engineering">Engineering Prep</button>
+        <button type="button" class="tab-button" data-track="varsity">Varsity A-Unit</button>
+      </div>
+    </section>
+
+    <section class="panel" id="universityPanel">
+      <div class="section-header">
+        <div>
+          <h2 { text-align: center; }>🚨There is not much time left🚨</h2>
+         
+        </div>
+      </div>
+      <form id="universityForm" class="inline-form">
+        <input id="universityName" type="text" placeholder="University name" required />
+        <input id="universityDate" type="date" required />
+        <button type="submit" class="primary-button">Add University</button>
+      </form>
+      <div class="card-grid" id="universityList"></div>
+    </section>
+
+    <section class="panel" id="subjectPanel">
+      <div class="section-header">
+        <div>
+          <h2>Daily Problem Targets</h2>
+        
+        </div>
+      </div>
+      <div class="subject-grid" id="subjectList"></div>
+    </section>
+
+    <section class="panel timer-panel">
+      <div class="section-header">
+        <div>
+          <h2>Study Timer</h2>
+        </div>
+        <div class="timer-summary">
+          <span>Streak Time</span>
+          <strong id="dailyFocusTotal">0m</strong>
+        </div>
+      </div>
+      <div class="timer-layout">
+        <div class="timer-card">
+          <div class="timer-display" id="timerDisplay">25:00</div>
+          <div class="timer-presets">
+            <button type="button" class="secondary-button" data-timer="25">25 min</button>
+            <button type="button" class="secondary-button" data-timer="50">50 min</button>
+            <div class="custom-timer">
+              <input id="timerCustom" type="number" min="1" placeholder="Custom" />
+              <button type="button" class="secondary-button" id="setCustomTimer">Set</button>
+            </div>
+          </div>
+          <div class="timer-actions">
+            <button type="button" class="primary-button" id="startTimer">Start</button>
+            <button type="button" class="secondary-button" id="pauseTimer">Pause</button>
+            <button type="button" class="secondary-button" id="resetTimer">Reset</button>
+          </div>
+        </div>
+        <div class="timer-stats">
+          <div class="stat-card">
+            <span>Session length</span>
+            <strong id="timerLength">25 min</strong>
+          </div>
+          <div class="stat-card">
+            <span>Sessions done</span>
+            <strong id="timerSessions">0</strong>
+          </div>
+          <div class="stat-card">
+            <span>Status</span>
+            <strong id="timerStatus">Paused</strong>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel todo-panel">
+      <div class="section-header">
+        <div>
+          <h2>To-Do List</h2>
+        </div>
+      </div>
+      <div class="todo-grid">
+        <div class="todo-card todo-input-card">
+          <form id="goalsForm" class="todo-form">
+            <input id="goalInput" type="text" placeholder="Task title" required />
+            <div class="task-row">
+              <label>
+                Subject
+                
+                <select id="taskSubject">
+                  <option value="Physics">Physics</option>
+                  <option value="Chemistry">Chemistry</option>
+                  <option value="Math">Math</option>
+                  <option value="English">English</option>
+                </select>
+              </label>
+              <label>
+                Priority
+                
+                <select id="taskPriority">
+                  <option value="High">High priority</option>
+                  <option value="Medium" selected>Medium priority</option>
+                  <option value="Low">Low priority</option>
+                </select>
+              </label>
+            </div>
+            <div class="task-row">
+              <label>
+                Due date
+                <input id="taskDate" type="date" />
+              </label>
+            </div>
+            <button type="submit" class="primary-button full-button">+ Add task</button>
+           
+          </form>
+        </div>
+        <div class="todo-card todo-output-card">
+          <div class="todo-list-header">
+            <div>
+              <h3>Study tasks</h3>
+              <p id="taskCount">0 pending</p>
+            </div>
+            <div class="todo-filters" id="taskFilters">
+              <button type="button" class="filter-button active" data-filter="all">All</button>
+              <button type="button" class="filter-button" data-filter="pending">Pending</button>
+              <button type="button" class="filter-button" data-filter="completed">Completed</button>
+            </div>
+          </div>
+          <ul class="goal-list" id="goalList"></ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel history-panel">
+      <div class="section-header">
+        <div>
+          <h2>History & Analytics</h2>
+          <p class="section-note">Review previous days to see subject totals and total focus time.</p>
+        </div>
+        <label class="history-picker">
+          View date
+          <input id="historyDate" type="date" />
+        </label>
+      </div>
+      <div class="history-summary" id="historySummary"></div>
+    </section>
+
+    <section class="panel notes-panel">
+      <div class="section-header">
+        <div>
+          <h2>Revision Log</h2>
+          <p class="section-note">Capture weak topics and clear them as you revise.</p>
+        </div>
+      </div>
+      <form id="notesForm" class="inline-form">
+        <input id="noteInput" type="text" placeholder="Add weak topic or note" required />
+        <button type="submit" class="primary-button">Add</button>
+      </form>
+      <ul class="note-list" id="noteList"></ul>
+    </section>
+
+    <section class="panel backup-panel">
+      <div class="section-header">
+        <div>
+          <h2>Backup & Restore</h2>
+          <p class="section-note">Export your full app state or restore from a JSON backup.</p>
+        </div>
+        <div class="backup-actions">
+          <button type="button" class="secondary-button" id="exportData">Export Backup</button>
+          <button type="button" class="secondary-button" id="importTrigger">Import Backup</button>
+          <input type="file" id="importInput" accept=".json" hidden />
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <script src="utils.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
+<footer>
+  <p class="footer-text" align="center">Powered by PhysiChemX</a></p>
+</footer>
+</html>
