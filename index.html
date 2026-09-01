@@ -10,8 +10,9 @@
 <body>
   <div class="container">
     <header class="app-header">
+      <div id="headerClock" class="header-clock" aria-hidden="false"></div>
       <div>
-        <p class="eyebrow">A small initiative by <b>Nazmul Abid</b> to increase productivity</p>
+        <p class="eyebrow">A small initiative by <b><b>Nazmul Abid</b></b> to increase productivity</p>
         <h1>Admission Tracker</h1>
         <p class="hero-copy">A simple, elegant study tracker designed to help you stay focused, eliminate procrastination, and hit your daily goals..</p>
       </div>
@@ -39,9 +40,9 @@
         </div>
       </div>
       <form id="universityForm" class="inline-form">
-        <input id="universityName" type="text" placeholder="University name" required />
+        <input id="universityName" type="text" placeholder="Exam Name" required />
         <input id="universityDate" type="date" required />
-        <button type="submit" class="primary-button">Add University</button>
+        <button type="submit" class="primary-button">Add Exam</button>
       </form>
       <div class="card-grid" id="universityList"></div>
     </section>
@@ -64,6 +65,7 @@
         <div class="timer-summary">
           <span>Streak Time</span>
           <strong id="dailyFocusTotal">0m</strong>
+          <button type="button" class="secondary-button timer-daily-reset" id="resetDailyStats" title="Clear today's sessions and streak time">Reset sessions</button>
         </div>
       </div>
       <div class="timer-layout">
@@ -204,6 +206,7 @@
   <div id="toast" class="toast"></div>
 
   <script src="utils.js"></script>
+  <script src="clock.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

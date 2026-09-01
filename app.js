@@ -29,6 +29,7 @@ const App = (() => {
     startTimer: document.getElementById('startTimer'),
     pauseTimer: document.getElementById('pauseTimer'),
     resetTimer: document.getElementById('resetTimer'),
+    resetDailyStats: document.getElementById('resetDailyStats'),
     historyDate: document.getElementById('historyDate'),
     historySummary: document.getElementById('historySummary'),
     notesForm: document.getElementById('notesForm'),
@@ -250,7 +251,8 @@ const App = (() => {
           <input type="date" class="uni-date" value="${university.targetDate}" />
         </label>
         <label class="field-label">
-          University name
+          Examnpm run dev
+           name
           <input type="text" class="uni-name" value="${university.name}" />
         </label>
         <div class="countdown">
@@ -574,6 +576,83 @@ const App = (() => {
     Utils.showToast(`Custom focus set to ${minutes} min.`);
   };
 
+  const ensureAudioContext = () => {
+    if (window.__trackerAudioContext) {
+      return window.__trackerAudioContext;
+    }
+
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContext) return null;
+
+    const context = new AudioContext();
+    window.__trackerAudioContext = context;
+    if (context.state === 'suspended') {
+      context.resume().catch(() => {});
+    }
+    return context;
+  };
+
+  const playSynthTone = ({ frequency = 880, frequency2 = 1320, duration = 0.12, type = 'sine', type2 = 'triangle', volume = 0.04, sweep = 1.45, delay = 0 } = {}) => {
+    const context = ensureAudioContext();
+    if (!context) return;
+
+    const now = context.currentTime + delay;
+    const osc1 = context.createOscillator();
+    const osc2 = context.createOscillator();
+    const gain = context.createGain();
+
+    osc1.type = type;
+    osc2.type = type2;
+    osc1.frequency.setValueAtTime(frequency, now);
+    osc1.frequency.exponentialRampToValueAtTime(frequency * sweep, now + duration);
+    osc2.frequency.setValueAtTime(frequency2, now);
+    osc2.frequency.exponentialRampToValueAtTime(frequency2 * sweep, now + duration);
+
+    gain.gain.setValueAtTime(0.0001, now);
+    gain.gain.exponentialRampToValueAtTime(volume, now + 0.01);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+
+    osc1.connect(gain);
+    osc2.connect(gain);
+    gain.connect(context.destination);
+
+    osc1.start(now);
+    osc2.start(now);
+    osc1.stop(now + duration);
+    osc2.stop(now + duration);
+  };
+
+  const playTimerSound = (kind = 'start') => {
+    if (kind === 'complete') {
+      const alarmBeep = (frequency, duration, delay = 0) => {
+        const context = ensureAudioContext();
+        if (!context) return;
+
+        const now = context.currentTime + delay;
+        const osc = context.createOscillator();
+        const gain = context.createGain();
+
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(frequency, now);
+        gain.gain.setValueAtTime(0.0001, now);
+        gain.gain.exponentialRampToValueAtTime(0.18, now + 0.01);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+
+        osc.connect(gain);
+        gain.connect(context.destination);
+
+        osc.start(now);
+        osc.stop(now + duration);
+      };
+
+      for (let index = 0; index < 3; index += 1) {
+        alarmBeep(880, 0.12, index * 0.16);
+        alarmBeep(1180, 0.1, index * 0.16 + 0.06);
+      }
+      return;
+    }
+  };
+
   const completeTimerSession = () => {
     pauseCurrentTimer();
     const timer = getCurrentTrack().timer;
@@ -590,7 +669,7 @@ const App = (() => {
     renderTimer();
     renderHistorySummary();
     Utils.showToast(`Session complete • ${sessionMinutes} min logged.`);
-    playCompletionTone();
+    playTimerSound('complete');
   };
 
   const startTimer = () => {
@@ -602,6 +681,7 @@ const App = (() => {
     timer.running = true;
     saveState();
     renderTimer();
+    playTimerSound('start');
 
     timerInterval = setInterval(() => {
       const currentTimer = getCurrentTrack().timer;
@@ -646,22 +726,21 @@ const App = (() => {
     renderTimer();
   };
 
-  const playCompletionTone = () => {
-    try {
-      const AudioContext = window.AudioContext || window.webkitAudioContext;
-      const context = new AudioContext();
-      const oscillator = context.createOscillator();
-      const gain = context.createGain();
-      oscillator.type = 'sine';
-      oscillator.frequency.value = 520;
-      oscillator.connect(gain);
-      gain.connect(context.destination);
-      gain.gain.setValueAtTime(0.08, context.currentTime);
-      oscillator.start();
-      oscillator.stop(context.currentTime + 0.2);
-    } catch (error) {
-      console.warn('Audio not supported:', error);
+  const resetDailyStats = () => {
+    if (!window.confirm("Reset today's sessions and streak time? History will be kept.")) return;
+
+    Object.values(state.tracks).forEach((track) => {
+      track.timer.running = false;
+      track.timer.completedMinutes = 0;
+      track.timer.sessions = 0;
+    });
+    if (timerInterval) {
+      clearInterval(timerInterval);
+      timerInterval = null;
     }
+    saveState();
+    renderTimer();
+    Utils.showToast("Today's session counters were reset. History is unchanged.");
   };
 
   const exportBackup = () => {
@@ -827,10 +906,13 @@ const App = (() => {
       adjustSubject(button.dataset.subject, button.dataset.action);
     });
 
-    elements.subjectList.addEventListener('input', (event) => {
+    elements.subjectList.addEventListener('change', (event) => {
       if (event.target.classList.contains('subject-target-input')) {
         updateSubject(event.target.dataset.subject, { target: Number(event.target.value) || 0 });
       }
+    });
+
+    elements.subjectList.addEventListener('input', (event) => {
       if (event.target.classList.contains('subject-solved-input')) {
         updateSubject(event.target.dataset.subject, { solved: Number(event.target.value) || 0 });
       }
@@ -851,6 +933,7 @@ const App = (() => {
     elements.startTimer.addEventListener('click', startTimer);
     elements.pauseTimer.addEventListener('click', pauseTimer);
     elements.resetTimer.addEventListener('click', resetTimer);
+    elements.resetDailyStats.addEventListener('click', resetDailyStats);
 
     elements.historyDate.addEventListener('change', renderHistorySummary);
 
